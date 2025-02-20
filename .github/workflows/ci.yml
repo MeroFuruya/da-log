@@ -19,7 +19,7 @@ jobs:
         run: echo node_version=$(cat .tool-versions | grep node | cut -d' ' -f2) >> $GITHUB_OUTPUT
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ steps.node_version.outputs.node_version }}
 
