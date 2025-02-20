@@ -65,7 +65,7 @@ function _createLogger(prefix: string[], params: Params): DaLog {
     log: (message: Value) => log('log', message),
     warn: (message: Value) => log('warn', message),
     debug: (message: Value) => log('debug', message),
-    prefix: (prefix: string) => _createLogger([...prefix, prefix], params),
+    prefix: (p: string) => _createLogger([...prefix, p], params),
     param: (key: string, value: Value) =>
       _createLogger(prefix, { ...params, [key]: value }),
   };

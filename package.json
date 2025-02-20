@@ -2,9 +2,19 @@
   "name": "da-log",
   "version": "1.0.0",
   "description": "just a js/ts logger",
+  "main": "dist/index.js",
+  "module": "dist/esm/index.js",
+  "esnext": "dist/esm/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "test": "jest",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "build": "npm run build-cjs && npm run bulid-esm",
+    "bulid-esm": "tsc -p tsconfig.json",
+    "build-cjs": "tsc -p tsconfig.cjs.json"
   },
   "keywords": [
     "logging"
