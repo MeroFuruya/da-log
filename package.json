@@ -1,6 +1,6 @@
 {
   "name": "@merofuruya/da-log",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "just a js/ts logger",
   "main": "dist/index.js",
   "module": "dist/esm/index.js",
