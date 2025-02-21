@@ -1,7 +1,6 @@
 # da-log
 
-Just a simple javascript logger.
-
+Just a simple JavaScript logger.
 ## Installation
 
 ```bash
