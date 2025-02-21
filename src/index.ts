@@ -1,16 +1,24 @@
-export * as LogMethods from './methods/index';
+export * as Formatters from './formatter/index.js';
+export * as Outputs from './output/index.js';
 
 const levels = ['error', 'warn', 'log', 'debug'] as const;
 export type Level = (typeof levels)[number];
-export type Value = string | Error | { [key: string]: Value };
+export type Value =
+  | string
+  | Error
+  | { [key: string]: Value }
+  | undefined
+  | null
+  | number
+  | boolean;
 export type Params = Record<string, Value>;
-export type Prefix = string | string[];
+export type Prefix = string[];
 
 export interface DaLog {
-  error: (error: Value) => void;
-  log: (message: Value) => void;
-  warn: (message: Value) => void;
-  debug: (message: Value) => void;
+  error(error: Value): void;
+  log(message: Value): void;
+  warn(message: Value): void;
+  debug(message: Value): void;
   prefix(prefix: string): DaLog;
   param(key: string, value: Value): DaLog;
 }
@@ -23,12 +31,21 @@ export interface Message {
   timestamp: Date;
 }
 
+export interface Formatter {
+  (message: Message): string | Promise<string>;
+}
+
+export interface Output {
+  (message: Message, formatter: Formatter): void;
+}
+
 export interface LogMethod {
-  (message: Message): void;
+  formatter: Formatter;
+  output: Output;
 }
 
 let enabledLevels: Level[] = [...levels];
-let logMethods: LogMethod[] = [];
+const logMethods: LogMethod[] = [];
 
 export function setLevel(level: Level | Level[]) {
   if (Array.isArray(level)) enabledLevels = level;
@@ -37,9 +54,8 @@ export function setLevel(level: Level | Level[]) {
   }
 }
 
-export function setOutputs(method: LogMethod | LogMethod[]) {
-  if (!Array.isArray(method)) method = [method];
-  logMethods = method;
+export function addOutput(formatter: Formatter, output: Output) {
+  logMethods.push({ formatter, output });
 }
 
 export function createLogger() {
@@ -47,24 +63,25 @@ export function createLogger() {
 }
 
 function _createLogger(prefix: string[], params: Params): DaLog {
-  const log = (level: Level, message: Value) => {
+  const _log = (level: Level, message: Value) => {
     if (enabledLevels.includes(level)) {
-      logMethods.forEach((method) =>
-        method({
-          level,
-          prefix,
-          params,
-          message,
-          timestamp: new Date(),
-        }),
-      );
+      const messageObject = {
+        level,
+        prefix,
+        params,
+        message,
+        timestamp: new Date(),
+      };
+      logMethods.forEach(async (method) => {
+        method.output(messageObject, method.formatter);
+      });
     }
   };
   return {
-    error: (error: Value) => log('error', error),
-    log: (message: Value) => log('log', message),
-    warn: (message: Value) => log('warn', message),
-    debug: (message: Value) => log('debug', message),
+    error: (error: Value) => _log('error', error),
+    log: (message: Value) => _log('log', message),
+    warn: (message: Value) => _log('warn', message),
+    debug: (message: Value) => _log('debug', message),
     prefix: (p: string) => _createLogger([...prefix, p], params),
     param: (key: string, value: Value) =>
       _createLogger(prefix, { ...params, [key]: value }),

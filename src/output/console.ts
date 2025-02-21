@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import type { LogMethod, Message } from 'src/index';
+import type { Output } from '../index.js';
 
 // Add polyfill methods to the console object
 if (typeof console.log === 'function') {
@@ -17,6 +17,24 @@ if (typeof console.log === 'function') {
   }
 }
 
-export const JsonConsoleLogger: LogMethod = (message: Message) => {
-  console.log(JSON.stringify(message));
-};
+export function consoleLogger(): Output {
+  return (message, formatter) => {
+    let method;
+    switch (message.level) {
+      case 'error':
+        method = console.error;
+        break;
+      case 'warn':
+        method = console.warn;
+        break;
+      case 'log':
+        method = console.log;
+        break;
+      case 'debug':
+        method = console.debug;
+        break;
+    }
+
+    method(formatter(message));
+  };
+}
