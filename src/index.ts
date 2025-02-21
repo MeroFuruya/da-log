@@ -1,26 +1,21 @@
 export * as Formatters from './formatter/index.js';
 export * as Outputs from './output/index.js';
 
-const levels = ['error', 'warn', 'log', 'debug'] as const;
+const levels = ['error', 'warn', 'log', 'info', 'debug'] as const;
 export type Level = (typeof levels)[number];
-export type Value =
-  | string
-  | Error
-  | { [key: string]: Value }
-  | undefined
-  | null
-  | number
-  | boolean;
+export type Value = unknown;
 export type Params = Record<string, Value>;
 export type Prefix = string[];
 
 export interface DaLog {
   error(error: Value): void;
   log(message: Value): void;
+  info(message: Value): void;
   warn(message: Value): void;
   debug(message: Value): void;
   prefix(prefix: string): DaLog;
   param(key: string, value: Value): DaLog;
+  params(params: Params): DaLog;
 }
 
 export interface Message {
@@ -58,8 +53,9 @@ export function addOutput(formatter: Formatter, output: Output) {
   logMethods.push({ formatter, output });
 }
 
-export function createLogger() {
-  return _createLogger([], {});
+export function createLogger(prefix?: string): DaLog {
+  if (prefix === undefined) return _createLogger([], {});
+  return _createLogger([prefix], {});
 }
 
 function _createLogger(prefix: string[], params: Params): DaLog {
@@ -81,9 +77,11 @@ function _createLogger(prefix: string[], params: Params): DaLog {
     error: (error: Value) => _log('error', error),
     log: (message: Value) => _log('log', message),
     warn: (message: Value) => _log('warn', message),
+    info: (message: Value) => _log('info', message),
     debug: (message: Value) => _log('debug', message),
     prefix: (p: string) => _createLogger([...prefix, p], params),
     param: (key: string, value: Value) =>
       _createLogger(prefix, { ...params, [key]: value }),
+    params: (p: Params) => _createLogger(prefix, { ...params, ...p }),
   };
 }

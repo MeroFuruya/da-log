@@ -17,7 +17,7 @@ if (typeof console.log === 'function') {
   }
 }
 
-export function consoleLogger(): Output {
+function _console(): Output {
   return (message, formatter) => {
     let method;
     switch (message.level) {
@@ -33,8 +33,15 @@ export function consoleLogger(): Output {
       case 'debug':
         method = console.debug;
         break;
+      case 'info':
+        method = console.info;
+        break;
+      default:
+        method = console.log;
     }
 
     method(formatter(message));
   };
 }
+
+export { _console as console, _console as consoleOutput };
