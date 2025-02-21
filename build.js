@@ -23,6 +23,8 @@ rmSync(outDir, { recursive: true, force: true });
 // build
 /** @type {import('typescript').CompilerOptions} */
 const baseOptions = {
+  declaration: true,
+  declarationMap: true,
   strict: true,
   baseUrl: import.meta.url,
   esModuleInterop: true,
@@ -58,22 +60,6 @@ const esmProgram = createProgram({
 console.log('Emitting ESM');
 const esmEmitResult = esmProgram.emit();
 reportDiagnostic(esmProgram, esmEmitResult);
-
-// emit declaration files
-const dtsProgram = createProgram({
-  options: {
-    ...baseOptions,
-    declaration: true,
-    declarationMap: true,
-    emitDeclarationOnly: true,
-    outFile: join(outDir, 'index.d.ts'),
-  },
-  rootNames,
-});
-// eslint-disable-next-line no-console, no-undef
-console.log('Emitting DTS');
-const dtsEmitResult = dtsProgram.emit();
-reportDiagnostic(dtsProgram, dtsEmitResult);
 
 /**
  * Report diagnostics and errors from the TypeScript compiler
