@@ -37,7 +37,7 @@ const baseOptions = {
 const cjsProgram = createProgram({
   options: {
     ...baseOptions,
-    outDir: join(outDir, 'cjs'),
+    outDir: outDir,
     target: ScriptTarget.ES2015,
   },
   rootNames,
